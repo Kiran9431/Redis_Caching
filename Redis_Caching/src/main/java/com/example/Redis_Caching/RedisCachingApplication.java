@@ -21,33 +21,47 @@ public class RedisCachingApplication {
 	@Autowired
 	private EmployeeDao dao;
 
-	@PostMapping
+	@PostMapping("/addEmployee")
 	public Employee save(@RequestBody Employee employee) {
 		return dao.save(employee);
 	}
-	@PutMapping
-	@CachePut(key = "#id", value = "Employee")
-	public Employee update(@PathVariable int id){
-		return dao.update(id);
+
+	@PostMapping("/addListOfEmployees")
+    public String saveListOfEmployees(@RequestBody List<Employee> employeeList){
+		long startTime=System.nanoTime();
+        for (Employee emp:employeeList) {
+            dao.save(emp);
+        }
+		long stopTime=System.nanoTime();
+		long totalTime=stopTime-startTime;
+        return "Total time taken= "+totalTime;
+    }
+
+	@GetMapping("/getAllEmployees")
+	public List<Employee> getAllEmployees() {
+		long startTime=System.nanoTime();
+		List<Employee> employeeList=dao.findAll();
+		long stopTime=System.nanoTime();
+		long totalTime=stopTime-startTime;
+		float seconds=((float) totalTime /1000000000);
+		System.out.println("total time"+seconds);
+		return employeeList;
 	}
 
-	@GetMapping
-	public List<Employee> getAllEmployees() {
-		return dao.findAll();
-	}
-	@Cacheable(key = "#id", value = "Employee",unless ="result.salary > 500")
-	@GetMapping("/{id}")
+	@Cacheable(key = "#id", value = "Employee")
+	@GetMapping("/getEmp/{id}")
 	public Employee findEmployee(@PathVariable int id) {
 		return dao.findEmployeeById(id);
 	}
 
-	@DeleteMapping("/{id}")
+	@DeleteMapping("/deleteEmployee/{id}")
 	@CacheEvict(key = "#id", value = "Employee")
 	public String remove(@PathVariable int id)   {
 		return dao.deleteEmployee(id);
 	}
 
 	public static void main(String[] args) {
+
 		SpringApplication.run(RedisCachingApplication.class, args);
 	}
 

@@ -18,11 +18,6 @@ public class EmployeeDao {
         return employee;
     }
 
-    public Employee update(int employee){
-        template.opsForHash().put(HASH_KEY,employee.getId(),employee);
-        return employee;
-    }
-
     public List<Employee> findAll(){
         return template.opsForHash().values(HASH_KEY);
     }
@@ -31,7 +26,6 @@ public class EmployeeDao {
         System.out.println("called findEmployeeById() from DB");
         return (Employee) template.opsForHash().get(HASH_KEY,id);
     }
-
 
     public String deleteEmployee(int id){
         template.opsForHash().delete(HASH_KEY,id);
