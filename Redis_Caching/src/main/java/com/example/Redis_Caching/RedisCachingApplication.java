@@ -2,6 +2,7 @@ package com.example.Redis_Caching;
 
 import com.example.Redis_Caching.entity.Employee;
 import com.example.Redis_Caching.repository.EmployeeDao;
+import com.example.Redis_Caching.repository.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -21,8 +22,11 @@ public class RedisCachingApplication {
 	@Autowired
 	private EmployeeDao dao;
 
+	@Autowired
+	EmployeeRepository employeeRepository;
+
 	@PostMapping("/addEmployee")
-	public Employee save(@RequestBody Employee employee) {
+	public String save(@RequestBody Employee employee) {
 		return dao.save(employee);
 	}
 
@@ -36,6 +40,24 @@ public class RedisCachingApplication {
 		long totalTime=stopTime-startTime;
         return "Total time taken= "+totalTime;
     }
+	@GetMapping("/getfew")
+	public List<Employee> findfewEmployees(){
+		List<Employee> employeeList=dao.findfewEmployees();
+		return employeeList;
+	}
+
+	@GetMapping("/get100")
+	public List<Employee>get100EmployeesFromList(){
+		List<Employee> employeeList = dao.get100EmployeesFromList();
+		return employeeList;
+	}
+
+
+	@GetMapping("/getEmp100")
+	public List<Employee>get100EmployeesFromHash(){
+		List<Employee> employeeList = dao.get100EmployeesFromList();
+		return employeeList;
+	}
 
 	@GetMapping("/getAllEmployees")
 	public List<Employee> getAllEmployees() {
@@ -48,8 +70,8 @@ public class RedisCachingApplication {
 		return employeeList;
 	}
 
-	@Cacheable(key = "#id", value = "Employee")
 	@GetMapping("/getEmp/{id}")
+	@Cacheable(key = "#id", value = "Employee")
 	public Employee findEmployee(@PathVariable int id) {
 		return dao.findEmployeeById(id);
 	}
@@ -58,6 +80,11 @@ public class RedisCachingApplication {
 	@CacheEvict(key = "#id", value = "Employee")
 	public String remove(@PathVariable int id)   {
 		return dao.deleteEmployee(id);
+	}
+
+	@GetMapping("/employees/salary-less-than-1000")
+	public List<Employee> getEmployees() {
+		return employeeRepository.findBySalary(50000);
 	}
 
 	public static void main(String[] args) {

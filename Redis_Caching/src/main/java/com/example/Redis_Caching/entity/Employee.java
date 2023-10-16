@@ -12,6 +12,8 @@ import java.io.Serializable;
 @NoArgsConstructor
 @RedisHash("Employee")
 public class Employee implements Serializable {
+
+
     @Id
     private int id;
     private String name;
